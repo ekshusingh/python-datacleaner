@@ -1,3 +1,5 @@
+#author@https://github.com/ekshusingh
+
 import numpy as np # linear algebra
 import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
 import re
@@ -32,7 +34,7 @@ def training(train):
     string.drop(columns=columns,inplace=True)
     integer=train.select_dtypes(include=['int','float'])
     date = pd.DataFrame(train, columns=columns)
-
+    #author@https://github.com/ekshusingh
     for i in date:
         date[i]= pd.to_datetime(date[i],yearfirst=True) 
 
@@ -123,4 +125,4 @@ def training(train):
     return x_train,y_train
 
 x_train,y_train = training(train)
-
+#author@https://github.com/ekshusingh
