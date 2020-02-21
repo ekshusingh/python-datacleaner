@@ -120,4 +120,3 @@ x_train=train.drop(columns=x)
 y_train=train[x]
 columns=backward_elimination(x_train,y_train)
 x_train = pd.DataFrame(x_train, columns=columns)
-x_train.columns
