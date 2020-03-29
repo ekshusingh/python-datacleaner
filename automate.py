@@ -1,5 +1,3 @@
-#author@https://github.com/ekshusingh
-
 import numpy as np
  
 import pandas as pd
@@ -46,7 +44,7 @@ def correlation(x_train):
         
         for j in range(i+1, corr.shape[0]):
             
-            if corr.iloc[i,j] >= 0.5:
+            if corr.iloc[i,j] >= 0.7:
                 
                 if columns[j]:
                     
@@ -133,38 +131,118 @@ def date_pre(date,columns):
     return date
 
 
+def string_train_pre(string_train,train,string_test,test):
+    
+     string_train_1=string_train
+    
+     string_test_1=string_test
+    
+     x=[]
+    
+     for i in string_train_1.columns:
+        
+         string_train_1[i] = string_train_1[i].str.replace(r'\D', '')
+        
+         string_test_1[i] = string_test_1[i].str.replace(r'\D', '')
+        
+         try:
+            
+             string_train_1[i] = string_train_1[i].astype('int')
+            
+             string_test_1[i] = string_test_1[i].astype('int')
+            
+         except:
+            
+             x.append(i)
+            
+     string_train_1.drop(columns=x,inplace=True)
+    
+     string_test_1.drop(columns=x,inplace=True)
+    
+     string_train=pd.DataFrame(train,columns=x)
+    
+     string_test=pd.DataFrame(test,columns=x)
 
-
-def trainingandtesting(x_train,test):
-    
-    
-    predict_column='status_group'
-    
-    train=x_train.drop(columns=predict_column)
-    
-    y_train=pd.DataFrame(x_train,columns=[predict_column])
-    
-    for i in y_train.columns:
+     for i in string_train.columns:
         
-        x=[]
+        string_train[i].fillna(string_train[i].mode().iloc[0],inplace=True)
         
-        arr=y_train[i].unique()
-    
+        string_test[i].fillna(string_train[i].mode().iloc[0],inplace=True)
+  
+     for i in string_train.columns:
         
-        n=y_train[i].nunique()
+        x_train=[]
         
-        for j in y_train[i]:
+        x_test=[]
+        
+        arr_train=string_train[i].unique()
+                
+        n=string_train[i].nunique()
+        
+        for j in string_train[i]:
             
             for k in range(0,n):
                 
-                if(j==arr[k] ):
-                    x.append(k)
+                if(j==arr_train[k] ):
+                    
+                    x_train.append(k)
                     
                 else:
                     
                     continue
+                
+        string_train[i]=x_train
+        
+        arr_test=string_test[i].unique()
+        
+        arr_left=list(set(arr_test).difference(arr_train))
+        
+        number_of_not=[]
+        
+        number=n
+        
+        for l in arr_left:
+            number=number+1
+            number_of_not.append(number)
+        
+        arr_left = dict(zip(number_of_not, arr_left)) 
+        
+         
+        for j in string_test[i]:
+            
+            for k in range(0,n):
+                
+                    if(j==arr_train[k] ):
+                    
+                        x_test.append(k)
+                
+                    else:
+                        
+                        for key,value in arr_left.items():
+                            
+                            if(j==value):
+                                
+                                x_test.append(int(key))
+                                
+                                break
+                        else:
+                            
+                            continue
+                        
+                        break
+        
+        string_test[i]=x_test
+        
+     return string_train,string_train_1,string_test,string_test_1
+
+def trainingandtesting(x_train,test):
     
-        y_train[i]=x
+    
+    predict_column=str(input('enter which column to predict: '))
+    
+    train=x_train.drop(columns=predict_column)
+    
+    y_train=pd.DataFrame(x_train,columns=[predict_column])
     
     x=[]
     
@@ -188,9 +266,9 @@ def trainingandtesting(x_train,test):
     
     string_test.drop(columns=columns,inplace=True)
     
-    integer_train=train.select_dtypes(include=['int','float','int64'])
+    integer_train=train.select_dtypes(include=['int64','float'])
     
-    integer_test=test.select_dtypes(include=['int','float','int64'])
+    integer_test=test.select_dtypes(include=['int64','float'])
     
     date_train = pd.DataFrame(train, columns=columns)
     
@@ -232,5 +310,3 @@ def trainingandtesting(x_train,test):
     test= pd.DataFrame(test,columns=train.columns)
     
     return train,y_train,test
-    
-#author@https://github.com/ekshusingh
